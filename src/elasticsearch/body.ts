@@ -435,11 +435,19 @@ export default class RequestBody {
       searchableFields.push(attribute + '^' + getBoosts(this.config, attribute))
     }
 
-    return body
+      return body
         .orQuery('multi_match', 'fields', searchableFields, getMultiMatchConfig(this.config, queryText))
-        .orQuery('bool', b => b.orQuery('terms', 'configurable_children.sku', queryText.split('-'))
-            .orQuery('match_phrase', 'sku', { query: queryText, boost: 1 })
-            .orQuery('match_phrase', 'configurable_children.sku', { query: queryText, boost: 1 }))
+        .orQuery('nested', 'path', 'category', b => b.orQuery('match', 'category.name', {
+          "query": queryText,
+          "operator": "or",
+          "fuzziness": "AUTO",
+          "max_expansions": 50,
+          "prefix_length": 2
+        }))
+        .orQuery('match_phrase', 'ean', { query: queryText, boost: "0.7" })
+        .orQuery('match_phrase', 'mpn', { query: queryText, boost: "0.7" })
+        .orQuery('match_phrase', 'sku', { query: queryText, boost: "0.7" })
+        .orQuery('match_phrase', 'configurable_children.sku', { query: queryText, boost: "0.7" })
   }
 
   protected getSearchText (): string {
