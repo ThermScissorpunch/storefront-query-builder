@@ -7,6 +7,7 @@ import ElasticsearchQueryConfig from './types/ElasticsearchQueryConfig'
  * @return {Object} Elasticsearch request body
  */
 export async function buildQueryBodyFromSearchQuery ({ config, queryChain, searchQuery, customFilters }: { config: ElasticsearchQueryConfig, queryChain: any, searchQuery: SearchQuery, customFilters?: FiltersInterface }): Promise<any>  {
+  console.log('BUILDER');
   const filter = new Body({ config, queryChain, searchQuery, customFilters })
   return filter.buildQueryBodyFromSearchQuery().build()
 }
