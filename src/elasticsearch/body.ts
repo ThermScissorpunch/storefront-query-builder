@@ -347,13 +347,91 @@ export default class RequestBody {
    */
   public applyTextQuery (): this {
     if (this.getSearchText() !== '') {
-      let functionScore = getFunctionScores(this.config)
-      // Build bool or function_score accordingly
-      if (functionScore) {
-        this.queryChain.query('function_score', functionScore, this.getQueryBody.bind(this))
-      } else {
-        this.queryChain.query('bool', this.getQueryBody.bind(this))
-      }
+      this.queryChain.query('dis_max', {
+        'tie_breaker': 0,
+        'queries': [
+          {
+            "match": {
+              "name": {
+                "query": this.getSearchText(),
+                "fuzziness": "AUTO",
+                "max_expansions": 50,
+                "prefix_length": 2,
+                "boost": 0.2
+              }
+            }
+          },
+          {
+            "bool": {
+              "should": [
+                {
+                  "nested": {
+                    "path": "category",
+                    "score_mode": "sum",
+                    "query": {
+                      "match": {
+                        "category.name": {
+                          "query": this.getSearchText(),
+                          "fuzziness": "AUTO",
+                          "max_expansions": 50,
+                          "prefix_length": 2,
+                          "boost": 0.333
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "multi_match": {
+                    "fields": [
+                      "manufacturer_text^1",
+                      "color_text^1"
+                    ],
+                    "query": this.getSearchText(),
+                    "fuzziness": "AUTO",
+                    "max_expansions": 50,
+                    "prefix_length": 2,
+                    "tie_breaker": 1,
+                    "boost": 0.667
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "match_phrase": {
+              "ean": {
+                "query": this.getSearchText(),
+                "boost": 0.7
+              }
+            }
+          },
+          {
+            "match_phrase": {
+              "mpn": {
+                "query": this.getSearchText(),
+                "boost": 0.2
+              }
+            }
+          },
+          {
+            "match_phrase": {
+              "sku": {
+                "query": this.getSearchText(),
+                "boost": 0.7
+              }
+            }
+          },
+          {
+            "match_phrase": {
+              "configurable_children.sku": {
+                "query": this.getSearchText(),
+                "boost": 0.7
+              }
+            }
+          }
+        ]
+      });
     }
 
     return this
@@ -423,35 +501,6 @@ export default class RequestBody {
     }
 
     return attribute
-  }
-
-  protected getQueryBody (body): any {
-    const queryText = this.getSearchText()
-
-    let searchableFields = []
-    let searchableAttributes = this.config.elasticsearch.hasOwnProperty('searchableAttributes')
-        ? this.config.elasticsearch.searchableAttributes : { 'name': { 'boost': 1 } }
-    for (const attribute of Object.keys(searchableAttributes)) {
-      searchableFields.push(attribute + '^' + getBoosts(this.config, attribute))
-    }
-
-      return body
-        .orQuery('multi_match', 'fields', searchableFields, getMultiMatchConfig(this.config, queryText))
-        .orQuery('nested', 'path', 'category', b => b.orQuery('match', 'category.name', {
-          "query": queryText,
-          "operator": "or",
-          "fuzziness": "AUTO",
-          "max_expansions": 50,
-          "prefix_length": 2
-        }))
-        .orQuery('match_phrase', 'ean', { query: queryText, boost: "0.7" })
-        .orQuery('match_phrase', 'mpn', { query: queryText, boost: "0.7" })
-        .orQuery('match_phrase', 'sku', { query: queryText, boost: "0.7" })
-        .orQuery('match_phrase', 'configurable_children.sku', { query: queryText, boost: "0.7" })
-  }
-
-  protected getSearchText (): string {
-    return this.searchQuery.getSearchText()
   }
 
   /**
