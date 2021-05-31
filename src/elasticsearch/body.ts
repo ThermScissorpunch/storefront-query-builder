@@ -356,7 +356,7 @@ export default class RequestBody {
                 "query": this.getSearchText(),
                 "fuzziness": "AUTO",
                 "max_expansions": 50,
-                "prefix_length": 2,
+                "prefix_length": 1,
                 "boost": 0.2
               }
             }
@@ -374,7 +374,7 @@ export default class RequestBody {
                           "query": this.getSearchText(),
                           "fuzziness": "AUTO",
                           "max_expansions": 50,
-                          "prefix_length": 2,
+                          "prefix_length": 1,
                           "boost": 0.333
                         }
                       }
@@ -390,7 +390,7 @@ export default class RequestBody {
                     "query": this.getSearchText(),
                     "fuzziness": "AUTO",
                     "max_expansions": 50,
-                    "prefix_length": 2,
+                    "prefix_length": 1,
                     "tie_breaker": 1,
                     "boost": 0.667
                   }
