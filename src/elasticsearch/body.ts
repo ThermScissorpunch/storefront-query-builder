@@ -503,6 +503,10 @@ export default class RequestBody {
     return attribute
   }
 
+  protected getSearchText (): string {
+    return this.searchQuery.getSearchText()
+  }
+
   /**
    * Get an empty representation of the bodybuilder query-chain without need to import bodybuilder itself
    * @return {any}

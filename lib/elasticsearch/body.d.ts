@@ -120,6 +120,7 @@ export default class RequestBody {
         scope: string;
     }): boolean;
     protected getMapping(attribute: string, entityType?: string): string;
+    protected getSearchText(): string;
     /**
      * Get an empty representation of the bodybuilder query-chain without need to import bodybuilder itself
      * @return {any}
