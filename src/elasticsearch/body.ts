@@ -346,7 +346,6 @@ export default class RequestBody {
    * @return {this}
    */
   public applyTextQuery (): this {
-    console.log('this.getSearchText() ', this.getSearchText());
     if (this.getSearchText() !== '') {
       this.queryChain.query('dis_max', {
         'tie_breaker': 0,
