@@ -346,21 +346,11 @@ export default class RequestBody {
    * @return {this}
    */
   public applyTextQuery (): this {
+    console.log(9991122);
     if (this.getSearchText() !== '') {
       this.queryChain.query('dis_max', {
         'tie_breaker': 0,
         'queries': [
-          {
-            "match": {
-              "name": {
-                "query": this.getSearchText(),
-                "fuzziness": "AUTO",
-                "max_expansions": 50,
-                "prefix_length": 0,
-                "boost": 0.2
-              }
-            }
-          },
           {
             "bool": {
               "should": [
@@ -385,7 +375,8 @@ export default class RequestBody {
                   "multi_match": {
                     "fields": [
                       "manufacturer_text^1",
-                      "color_text^1"
+                      "color_text^1",
+                      "name_cleaned^1"
                     ],
                     "query": this.getSearchText(),
                     "fuzziness": "AUTO",
