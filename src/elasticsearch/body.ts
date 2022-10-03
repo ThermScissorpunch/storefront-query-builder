@@ -346,7 +346,6 @@ export default class RequestBody {
    * @return {this}
    */
   public applyTextQuery (): this {
-    console.log(9991122);
     if (this.getSearchText() !== '') {
       this.queryChain.query('dis_max', {
         'tie_breaker': 0,
@@ -444,6 +443,11 @@ export default class RequestBody {
         for (let sort of appliedSort) {
           const { field, options } = sort
           sorting.push({ [field]: options })
+        }
+
+        if (this.getSearchText() !== '') {
+          // Always add score sorting when seraching
+          sorting.unshift( { _score: 'desc' })
         }
 
         this.queryChain.sort(sorting)
