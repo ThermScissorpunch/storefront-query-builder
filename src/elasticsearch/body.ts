@@ -362,9 +362,8 @@ export default class RequestBody {
                       "match": {
                         "category.name": {
                           "query": this.getSearchText(),
-                          "fuzziness": "AUTO",
-                          "max_expansions": 50,
-                          "prefix_length": 0,
+                          "fuzziness": "AUTO:4,8",
+                          "prefix_length": 1,
                           "boost": 0.333
                         }
                       }
@@ -373,14 +372,14 @@ export default class RequestBody {
                 },
                 {
                   "multi_match": {
+                    "type": "most_fields",
                     "fields": [
-                      "manufacturer_text^1",
-                      "color_text^1",
-                      "name_cleaned^1"
+                      "manufacturer_text",
+                      "color_text",
+                      "name_cleaned"
                     ],
                     "query": this.getSearchText(),
-                    "fuzziness": "AUTO",
-                    "max_expansions": 50,
+                    "fuzziness": "AUTO:4,8",
                     "prefix_length": 0,
                     "tie_breaker": 1,
                     "boost": 0.667
