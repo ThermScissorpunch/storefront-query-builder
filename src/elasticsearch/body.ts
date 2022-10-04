@@ -351,17 +351,6 @@ export default class RequestBody {
         'tie_breaker': 0,
         'queries': [
           {
-            "match": {
-              "name": {
-                "query": this.getSearchText(),
-                "fuzziness": "AUTO",
-                "max_expansions": 50,
-                "prefix_length": 0,
-                "boost": 0.2
-              }
-            }
-          },
-          {
             "bool": {
               "should": [
                 {
@@ -372,27 +361,37 @@ export default class RequestBody {
                       "match": {
                         "category.name": {
                           "query": this.getSearchText(),
-                          "fuzziness": "AUTO",
-                          "max_expansions": 50,
-                          "prefix_length": 0,
-                          "boost": 0.333
+                          "fuzziness": "AUTO:4,8",
+                          "prefix_length": 1,
+                          "boost": 1
                         }
                       }
                     }
                   }
                 },
                 {
-                  "multi_match": {
-                    "fields": [
-                      "manufacturer_text^1",
-                      "color_text^1"
-                    ],
-                    "query": this.getSearchText(),
-                    "fuzziness": "AUTO",
-                    "max_expansions": 50,
-                    "prefix_length": 0,
-                    "tie_breaker": 1,
-                    "boost": 0.667
+                  "match": {
+                    "manufacturer_text": {
+                      "query": this.getSearchText(),
+                      "fuzziness": "AUTO:4,8",
+                      "prefix_length": 0
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "color_text": {
+                      "query": this.getSearchText(),
+                      "fuzziness": "AUTO:4,8",
+                      "prefix_length": 0
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "name_cleaned": {
+                      "query": this.getSearchText()
+                    }
                   }
                 }
               ]
@@ -454,6 +453,11 @@ export default class RequestBody {
         for (let sort of appliedSort) {
           const { field, options } = sort
           sorting.push({ [field]: options })
+        }
+
+        if (this.getSearchText() !== '') {
+          // Always add score sorting when searching
+          sorting.unshift( { _score: 'desc' })
         }
 
         this.queryChain.sort(sorting)
