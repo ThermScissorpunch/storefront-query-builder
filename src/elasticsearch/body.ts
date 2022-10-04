@@ -456,7 +456,7 @@ export default class RequestBody {
         }
 
         if (this.getSearchText() !== '') {
-          // Always add score sorting when seraching
+          // Always add score sorting when searching
           sorting.unshift( { _score: 'desc' })
         }
 
