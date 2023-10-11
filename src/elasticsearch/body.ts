@@ -389,7 +389,7 @@ export default class RequestBody {
                 },
                 {
                   "match": {
-                    "name_cleaned": {
+                    "cleaned_name": {
                       "query": this.getSearchText()
                     }
                   }
